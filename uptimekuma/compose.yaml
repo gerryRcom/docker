@@ -1,0 +1,24 @@
+# named volume 'uptime-kuma' is marked as "external" (used by service 'uptime-kuma'), so either remove "external" from volume definition or it needs to be created using: docker volume create uptime-kuma
+name: uptime-kuma
+services:
+    uptime-kuma:
+        restart: always
+          #ports:
+          #  - 3001:3001
+        expose:
+          - "3001"
+        volumes:
+            - ./uptime-kuma:/app/data
+        container_name: uptime-kuma
+        image: louislam/uptime-kuma:1
+        env_file: "uptime-kuma.env"
+        networks:
+          - containnet
+volumes:
+    uptime-kuma:
+        external: true
+        name: uptime-kuma
+
+networks:
+  containnet:
+    external: true

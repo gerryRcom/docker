@@ -1,0 +1,45 @@
+services:
+
+    reverse-proxy:
+        image: "jwilder/nginx-proxy:latest"
+        container_name: "reverse-proxy"
+        volumes:
+            - "./nginx-data/html:/usr/share/nginx/html"
+            - "./nginx-data/dhparam:/etc/nginx/dhparam"
+            - "./nginx-data/vhost:/etc/nginx/vhost.d"
+            - "./nginx-data/certs:/etc/nginx/certs"
+            - "/run/docker.sock:/tmp/docker.sock:ro"
+        restart: "always"
+        networks: 
+            - "containnet"
+        ports:
+            - "80:80"
+            - "443:443"
+
+    letsencrypt:
+        image: "jrcs/letsencrypt-nginx-proxy-companion:latest"
+        container_name: "letsencrypt-helper"
+        volumes:
+            - "./nginx-data/html:/usr/share/nginx/html"
+            - "./nginx-data/dhparam:/etc/nginx/dhparam"
+            - "./nginx-data/vhost:/etc/nginx/vhost.d"
+            - "./nginx-data/certs:/etc/nginx/certs"
+            - "/run/docker.sock:/var/run/docker.sock:ro"
+        environment:
+            NGINX_PROXY_CONTAINER: "reverse-proxy"
+            DEFAULT_EMAIL: "root@int.gerryr.com"
+        restart: "always"
+        depends_on:
+            - "reverse-proxy"
+        networks:
+            - "containnet"
+
+volumes:
+  certs:
+  html:
+  vhost:
+  dhparam:
+
+networks:
+  containnet:
+    external: true
